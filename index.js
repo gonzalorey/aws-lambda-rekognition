@@ -1,49 +1,35 @@
 'use strict';
 
-console.log('Loading function');
-
+console.log('Loading function...');
 
 /**
- * Demonstrates a simple HTTP endpoint using API Gateway. You have full
- * access to the request and response payload, including headers and
- * status code.
- *
- * To scan a DynamoDB table, make a GET request with the TableName as a
- * query string parameter. To put, update, or delete an item, make a POST,
- * PUT, or DELETE request respectively, passing in the payload to the
- * DynamoDB API as a JSON body.
+ * The goal behind this Lambda function is to receive a base64 encoded image,
+ * send it to Rekognition and return the labels.
  */
 exports.handler = (event, context, callback) => {
-    //console.log('Received event:', JSON.stringify(event, null, 2));
+	console.log(event);
+	// console.log(context);
 
-    // const done = (err, res) => callback(null, {
-    //     statusCode: err ? '400' : '200',
-    //     body: err ? err.message : JSON.stringify(res),
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    // });
-    console.log(event);
-    console.log(context);
+	// Lets asume we already have the image in base64
+	var imageBytes;
 
-    // switch (event.httpMethod) {
-    //     case 'DELETE':
-    //         // dynamo.deleteItem(JSON.parse(event.body), done);
-    //         console.log('DELETE' + JSON.parse(event.body));
-    //         break;
-    //     case 'GET':
-    //         // dynamo.scan({ TableName: event.queryStringParameters.TableName }, done);
-    //         console.log('GET' + JSON.parse(event.body));
-    //         break;
-    //     case 'POST':
-    //         // dynamo.putItem(JSON.parse(event.body), done);
-    //         console.log('POST' + JSON.parse(event.body));
-    //         break;
-    //     case 'PUT':
-    //         // dynamo.updateItem(JSON.parse(event.body), done);
-    //         console.log('PUT' + JSON.parse(event.body));
-    //         break;
-    //     default:
-    //         done(new Error(`Unsupported method "${event.httpMethod}"`));
-    // }
+	// Build the rekognition request
+	var rekognitionRequest = {
+		"image": {
+			"Bytes": imageBytes
+		}
+	}
+
+	/** An image can be extracted from an S3 bucket, or received through base64 encoded bytes,
+	 *  an example for the second one can be founde here:
+	 *  - http://docs.aws.amazon.com/rekognition/latest/dg/example4.html
+	 *  - http://docs.aws.amazon.com/rekognition/latest/dg/get-started-exercise-detect-labels.html
+	 */
+	var labels = rekognitionClient.detectLabels(rekognitionRequest);
+
+	if (labels.isNotEmpty()) {
+		logger.log(labels);
+	} else {
+		logger.log("No labels returned. Not saving to ES");
+	}
 };
