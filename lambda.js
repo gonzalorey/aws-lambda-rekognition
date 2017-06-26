@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 var AWS = require('aws-sdk')
 if (!AWS.config.region) {		// ugly hack :´(

@@ -1,22 +1,21 @@
-var express = require('express');
-var app = express();
+var app = require('express')()
 
-var lambda = require('./lambda.js');
+var lambda = require('./lambda.js')
 
 var multer = require('multer')
 let upload = multer({ storage: multer.memoryStorage() })
 
 app.get('/', (req, res) => {
-  res.send('hello world');
-});
+  res.send('hello world')
+})
 
 app.post('/lambda', upload.single('image'), (req, res) => {
-  lambda.parseImage(req, res);
-});
+  lambda.parseImage(req, res)
+})
 
 app.listen(3000, () => {
   console.log('Listening on port 3000!');
-});
+})
 
 app.use((err, req, res, next) => {
   console.error(err.stack)
