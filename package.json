@@ -1,0 +1,28 @@
+{
+  "name": "aws-lambda-rekognition",
+  "version": "1.0.0",
+  "description": "A PoC of an AWS Lambda function that receives an image and sends it to Rekognition to analyze it, returning such information.",
+  "main": "server.js",
+  "scripts": {
+    "zip": "zip aws_lambda.zip lambda.js template.yaml",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gonzalorey/aws-lambda-rekognition.git"
+  },
+  "author": "Gonzalo M. Rey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gonzalorey/aws-lambda-rekognition/issues"
+  },
+  "homepage": "https://github.com/gonzalorey/aws-lambda-rekognition#readme",
+  "dependencies": {
+    "aws-sdk": "^2.76.0",
+    "express": "^4.15.3",
+    "file-api": "^0.10.4",
+    "filereader": "^0.10.3",
+    "multer": "^1.3.0",
+    "multiparty": "^4.1.3"
+  }
+}
