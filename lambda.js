@@ -15,16 +15,14 @@ console.log('Loading function...')
  *  Automate creation and publication of the AWS Lambda function:
  *  http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Lambda.html#createFunction-property
  */
+exports.handler = function(event, context, callback) {
+	var bucket_name = event.Records[0].s3.bucket.name;
+	var image_name = event.Records[0].s3.object.key;
 
-/**
- * The goal behind this Lambda function is to receive a base64 encoded image,
- * send it to Rekognition and return the labels.
- */
-exports.handler = function(event, context) {
-	return exports.parseImage(event.bucket_name, event.image_name)
+	exports.analyzeImage(bucket_name, image_name, callback)
 }
 
-exports.analyzeImage = (bucket_name, image_name, res) => {
+exports.analyzeImage = (bucket_name, image_name, callback) => {
 	var params = {
 		Image: {
 			S3Object: {
@@ -38,15 +36,15 @@ exports.analyzeImage = (bucket_name, image_name, res) => {
 	rekognition.detectLabels(params, (err, data) => {
 		if (err) {
 			console.log(err, err.stack)
-			res.status(err.statusCode).send(err.message)
+			callback(err)
 		} else {
 			console.log('Image successfuly analized: ' + JSON.stringify(data))
-			res.status(200).send(data)
+			callback(null, data)
 		}
 	})
 }
 
-exports.uploadImage = (bucket_name, file, res) => {
+exports.uploadImage = (bucket_name, file, callback) => {
 	var params = {
 		Body: file.buffer,
 		Bucket: bucket_name,
@@ -56,10 +54,10 @@ exports.uploadImage = (bucket_name, file, res) => {
 	s3.putObject(params, (err, data) => {
 		if(err) {
 			console.log(err, err.stack)
-			res.status(err.statusCode).send(err.message)
+			callback(err)
 		} else {
 			console.log('Image successfuly uploaded: ' + JSON.stringify(data))
-			exports.analyzeImage(params.Bucket, params.Key, res)
+			exports.analyzeImage(params.Bucket, params.Key, callback)
 		}
 	})
 }
