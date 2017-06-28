@@ -3,26 +3,31 @@ var app = require('express')()
 var lambda = require('./lambda.js')
 
 var multer = require('multer')
-let upload = multer({ storage: multer.memoryStorage() })
+var upload = multer({ storage: multer.memoryStorage() })
+
+const BUCKET_NAME = 'gonzalorey-test-bucket'
+const IMAGE_NAME = 'elmo-face.jpg'
 
 app.get('/', (req, res) => {
-  res.send('hello world')
+	res.send('hello world')
+})
+
+app.get('/lambda', (req, res) => {
+	lambda.analyzeImage(BUCKET_NAME, IMAGE_NAME, res)
 })
 
 app.post('/lambda', upload.single('image'), (req, res) => {
-  lambda.parseImage(req, res)
+	lambda.uploadImage(BUCKET_NAME, req.file, res)
 })
 
 app.listen(3000, () => {
-  console.log('Listening on port 3000!');
+	console.log('Listening on port 3000!')
 })
 
 app.use((err, req, res, next) => {
-  console.error(err.stack)
+	console.error(err.stack)
 
-  if(req.path == '/lambda' && !req.file) {
-    res.status(400).send(`'image' parameter wrong or missing!`)
-  } else {
-    res.status(500).send('Something broke!')
-  }
+	if(err) {
+		res.status(500).send('Something broke!')
+	}
 })
